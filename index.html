@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Penguji Pseudocode</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{--bg:#eef3f8;--card:#fff;--ink:#14213d;--mute:#5b6b85;--line:#cfd9e6;--ok:#117a4d;--okbg:#dff3e8;--bad:#b3261e;--badbg:#fbe3e1;--acc:#1f4fd8;--onacc:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1626;--card:#16223a;--ink:#e6edf8;--mute:#9fb0cc;--line:#2a3a5a;--ok:#5fd6a0;--okbg:#12362b;--bad:#ff8f87;--badbg:#3d1c1f;--acc:#8fb0ff;--onacc:#0e1626}}
+:root[data-theme="dark"]{--bg:#0e1626;--card:#16223a;--ink:#e6edf8;--mute:#9fb0cc;--line:#2a3a5a;--ok:#5fd6a0;--okbg:#12362b;--bad:#ff8f87;--badbg:#3d1c1f;--acc:#8fb0ff;--onacc:#0e1626}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Bricolage Grotesque",system-ui,sans-serif}
+main{max-width:1040px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.7rem;margin:0 0 4px}
+p.sub{margin:0 0 16px;color:var(--mute);max-width:66ch}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
+h2{font-size:1.05rem;margin:0 0 10px}
+textarea{width:100%;height:340px;resize:vertical;font:14px/1.6 "JetBrains Mono",ui-monospace,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px;tab-size:2}
+input[type=text]{width:100%;font:14px "JetBrains Mono",monospace;padding:6px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+textarea:focus,button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.row.b{margin:10px 0 0}
+button{font:inherit;font-weight:700;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.on{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+td.m{font-family:"JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-all}
+.badge{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:700;font-size:.82rem;white-space:nowrap}
+.pass{background:var(--okbg);color:var(--ok)}.fail{background:var(--badbg);color:var(--bad)}
+.summary{font-weight:700;margin:0 0 10px}
+.err{background:var(--badbg);color:var(--bad);border-radius:8px;padding:8px;font-family:"JetBrains Mono",monospace;font-size:.8rem;margin-top:4px}
+.small{color:var(--mute);font-size:.85rem;margin:10px 0 0}
+.tbl{overflow-x:auto}
+</style>
+</head>
+<body>
+<main><div id="root"></div></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script>
+const h = React.createElement;
+const { useState, useMemo } = React;
+
+const PRESETS = [
+  { name: "Contoh (Volume kerucut)", code:
+`program volume_kerucut
+kamus
+    constant pi : real = 3.14
+    r, t : integer
+    volume : real
+algoritma
+    input(r, t)
+    volume <- (1 / 3) * pi * r * r * t
+    output(volume)
+endprogram`,
+    cases: [["3 5","47.1"],["1 3","3.14"],["10 6","628"]] },
+  { name: "New pseudocode", code: "program contoh\nkamus\n    x : integer\nalgoritma\n    input(x)\n    output(x)\nendprogram", cases: [["7","7"]] },
+];
+
+// ---------- Penerjemah pseudocode -> JavaScript ----------
+const KW_END = /^(selesai|end|stop|endprogram|end\s*program|akhir\s*program)$/i;
+function splitTop(s) { // pisah berdasarkan koma di level paling luar
+  const out = []; let d = 0, q = "", cur = "";
+  for (const ch of s) {
+    if (q) { if (ch === q) q = ""; cur += ch; continue; }
+    if (ch === '"' || ch === "'") { q = ch; cur += ch; continue; }
+    if (ch === "(") d++; if (ch === ")") d--;
+    if (ch === "," && d === 0) { out.push(cur.trim()); cur = ""; } else cur += ch;
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+function unwrap(s) { // buang kurung terluar: input(a, b) -> a, b
+  s = s.trim();
+  if (s[0] !== "(" || s[s.length - 1] !== ")") return s;
+  let d = 0;
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === "(") d++; if (s[i] === ")") d--;
+    if (d === 0 && i < s.length - 1) return s;
+  }
+  return s.slice(1, -1);
+}
+function expr(e) {
+  const op = "(\\([^()]*\\)|[\\w.]+)";
+  return e.replace(/×/g, "*").replace(/÷/g, "/")
+    .replace(new RegExp(op + "\\s+div\\s+" + op, "gi"), "Math.trunc($1/$2)")
+    .replace(/\bmod\b/gi, "%").replace(/\bbenar\b/gi, "true").replace(/\bsalah\b/gi, "false");
+}
+function cond(c) {
+  return expr(c).replace(/≥/g, ">=").replace(/≤/g, "<=").replace(/≠|<>/g, "!=")
+    .replace(/\b(dan|and)\b/gi, "&&").replace(/\b(atau|or)\b/gi, "||").replace(/\b(tidak|not)\b/gi, "!")
+    .replace(/([^<>!=])=(?!=)/g, "$1==");
+}
+function translate(code) {
+  const js = [], vars = new Set(); let inDecl = false;
+  const lines = code.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i], s = raw.replace(/\/\/.*$/, "").trim();
+    if (!s) continue;
+    const bad = (m) => { throw new Error("Baris " + (i + 1) + ": " + m + " -> " + raw.trim()); };
+    let m;
+    if (/^(algoritma|mulai|begin)\b/i.test(s)) { inDecl = false; continue; }
+    if (/^(kamus|deklarasi|declare|var)\s*$/i.test(s)) { inDecl = true; continue; }
+    if (/^program\b/i.test(s) || KW_END.test(s)) continue;
+    if (/^(kamus|deklarasi|declare|var)\b/i.test(s) && s.includes(":")) { m = s.replace(/^\w+\s+/, ""); declare(m); continue; }
+    if (inDecl) { declare(s); continue; }
+    if (/^(akhir\s*jika|selesai\s*jika|end\s*if|endif)$/i.test(s) || /^(akhir\s*selama|end\s*while|endwhile|akhir\s*untuk|end\s*for|endfor)$/i.test(s)) { js.push("}"); continue; }
+    if (/^(jika\s*tidak|lainnya|selain\s*itu|else)$/i.test(s)) { js.push("} else {"); continue; }
+    if ((m = s.match(/^(?:else\s*if|jika\s*tidak\s*jika|lainnya\s*jika)\s+(.+?)\s+(?:then|maka)$/i))) { js.push("} else if (" + cond(m[1]) + ") {"); continue; }
+    if ((m = s.match(/^(?:if|jika)\s+(.+?)\s+(?:then|maka)$/i))) { js.push("if (" + cond(m[1]) + ") {"); continue; }
+    if ((m = s.match(/^(?:while|selama)\s+(.+?)\s+(?:do|lakukan)$/i))) { js.push("while (" + cond(m[1]) + ") { if (++__g > 100000) throw new Error('Perulangan tidak berhenti');"); continue; }
+    if ((m = s.match(/^(?:for|untuk)\s+(\w+)\s*(?:<-|←|:=|=)\s*(.+?)\s+(?:to|sampai)\s+(.+?)\s+(?:do|lakukan)$/i))) {
+      vars.add(m[1]); js.push("for (" + m[1] + " = " + expr(m[2]) + "; " + m[1] + " <= " + expr(m[3]) + "; " + m[1] + "++) { if (++__g > 100000) throw new Error('Perulangan tidak berhenti');"); continue; }
+    if ((m = s.match(/^(?:input|baca|read)\b\s*(.+)$/i))) {
+      splitTop(unwrap(m[1])).forEach((n) => { if (!/^[A-Za-z_]\w*$/.test(n)) bad("nama variabel tidak valid"); vars.add(n); js.push(n + " = __next();"); }); continue; }
+    if ((m = s.match(/^(?:output|cetak|tampilkan|print|display|tulis)\b\s*(.+)$/i))) {
+      js.push("__out.push([" + splitTop(unwrap(m[1])).map((a) => "__fmt(" + expr(a) + ")").join(",") + "].join(' '));"); continue; }
+    if ((m = s.match(/^([A-Za-z_]\w*)\s*(?:<-|←|:=|=)\s*(.+)$/))) { vars.add(m[1]); js.push(m[1] + " = " + expr(m[2]) + ";"); continue; }
+    bad("perintah tidak dikenali");
+  }
+  function declare(d) {
+    const m = d.match(/^(?:(?:constant|const|konstanta)\s+)?(.+?)\s*:\s*[A-Za-z]+(?:\s*(?:=|<-)\s*(.+))?$/i);
+    if (!m) throw new Error("Deklarasi tidak dikenali: " + d);
+    m[1].split(",").forEach((n) => vars.add(n.trim()));
+    if (m[2]) js.push(m[1].trim() + " = " + expr(m[2]) + ";");
+  }
+  return (vars.size ? "let " + [...vars].join(",") + ";" : "") + js.join("\n");
+}
+function run(code, inputText) {
+  const body = translate(code);
+  const toks = inputText.split(/[\s,;]+/).filter(Boolean).map((t) => (isNaN(t) ? t : Number(t)));
+  let k = 0, __g = 0; const out = [];
+  const next = () => { if (k >= toks.length) throw new Error("Masukan kurang: program meminta lebih banyak input"); return toks[k++]; };
+  const fmt = (v) => (typeof v === "number" && !Number.isInteger(v) ? String(Number(v.toPrecision(12))) : String(v));
+  new Function("__next", "__out", "__fmt", "__g", body)(next, out, fmt, 0);
+  return out.join("\n");
+}
+function same(a, b) {
+  a = a.trim(); b = b.trim();
+  if (a !== "" && b !== "" && !isNaN(a) && !isNaN(b)) return Math.abs(Number(a) - Number(b)) < 1e-6;
+  return a === b;
+}
+
+function App() {
+  const [pi, setPi] = useState(1);
+  const [code, setCode] = useState(PRESETS[1].code);
+  const [cases, setCases] = useState(PRESETS[1].cases.map(([i, e]) => ({ i, e })));
+
+  const pick = (n) => { setPi(n); setCode(PRESETS[n].code); setCases(PRESETS[n].cases.map(([i, e]) => ({ i, e }))); };
+  const setCase = (n, f, v) => setCases((cs) => cs.map((c, x) => (x === n ? { ...c, [f]: v } : c)));
+
+  const results = useMemo(() => cases.map((c) => {
+    try { const got = run(code, c.i); return { got, ok: same(got, c.e) }; }
+    catch (e) { return { got: "", ok: false, error: e.message }; }
+  }), [code, cases]);
+  const passed = results.filter((r) => r.ok).length;
+
+  return h("div", null,
+    h("h1", null, "Penguji pseudocode"),
+    h("p", { className: "sub" }, "Tempel pseudocode apa saja di kiri, isi kasus uji di kanan (masukan dan keluaran yang diharapkan), lalu lihat apakah hasilnya sesuai."),
+    h("div", { className: "grid" },
+      h("section", { className: "panel" },
+        h("h2", null, "Pseudocode"),
+        h("div", { className: "row" }, PRESETS.map((p, n) => h("button", { key: p.name, className: n === pi ? "on" : "", onClick: () => pick(n) }, p.name))),
+        h("textarea", { value: code, onChange: (e) => setCode(e.target.value), spellCheck: false, "aria-label": "Editor pseudocode" }),
+        h("p", { className: "small" }, "Didukung: program/kamus/algoritma, constant, deklarasi tipe, input(a, b) atau BACA, output(x) atau CETAK, <- atau ←, JIKA…MAKA/JIKA TIDAK/AKHIR JIKA, SELAMA…LAKUKAN, UNTUK i <- 1 SAMPAI n LAKUKAN, mod, div, DAN/ATAU. Padanan Inggris (if/then/else/while/for/to/do) juga bisa.")
+      ),
+      h("section", { className: "panel" },
+        h("h2", null, "Kasus uji"),
+        h("p", { className: "summary", role: "status" }, passed === cases.length && cases.length ? "Semua " + cases.length + " kasus sesuai." : passed + " dari " + cases.length + " kasus sesuai."),
+        h("div", { className: "tbl" }, h("table", null,
+          h("thead", null, h("tr", null, ["Masukan", "Diharapkan", "Hasil", "Status", ""].map((t, n) => h("th", { key: n }, t)))),
+          h("tbody", null, cases.map((c, n) => h("tr", { key: n },
+            h("td", null, h("input", { type: "text", value: c.i, "aria-label": "Masukan kasus " + (n + 1), onChange: (e) => setCase(n, "i", e.target.value) })),
+            h("td", null, h("input", { type: "text", value: c.e, "aria-label": "Keluaran diharapkan kasus " + (n + 1), onChange: (e) => setCase(n, "e", e.target.value) })),
+            h("td", { className: "m" }, results[n].got || "-", results[n].error && h("div", { className: "err" }, results[n].error)),
+            h("td", null, h("span", { className: "badge " + (results[n].ok ? "pass" : "fail") }, results[n].ok ? "Sesuai" : "Tidak sesuai")),
+            h("td", null, h("button", { onClick: () => setCases((cs) => cs.filter((_, x) => x !== n)), "aria-label": "Hapus kasus " + (n + 1) }, "×"))))))),
+        h("div", { className: "row b" }, h("button", { onClick: () => setCases((cs) => [...cs, { i: "", e: "" }]) }, "Tambah kasus")),
+        h("p", { className: "small" }, "Beberapa masukan dipisah spasi atau koma, misalnya 3 5. Angka desimal dibandingkan dengan toleransi kecil.")
+      )
+    )
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+</script>
+</body>
+</html>
