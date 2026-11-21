@@ -479,11 +479,21 @@ const PSEUDO_HINT = "Didukung: program/kamus/algoritma, constant, deklarasi tipe
 const GO_HINT = "Didukung: package main, import, func main(), var/const/:=, fmt.Scan/Scanln/Scanf(&a, &b), fmt.Println/Print/Printf, if/else if/else, for (3 bentuk, gaya while, range n), break/continue, += -= ++ --, math.Sqrt dkk., float64()/int(). Pembagian int/int dibulatkan seperti Go. Belum didukung: fungsi lain, array/slice, map, struct, switch, bufio.";
 const TABS = ["1. Cek pseudocode", "2. Cek Golang"];
 
+function rich(text) {
+  return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).filter(Boolean).map((t, n) => {
+    if (t.startsWith("**") && t.endsWith("**")) return h("strong", { key: n }, t.slice(2, -2));
+    if (t.startsWith("*") && t.endsWith("*")) return h("em", { key: n }, t.slice(1, -1));
+    return t;
+  });
+}
+
+const INTRO = "Halo mahasiswa PJJ! Di saat orang lain tidur nyenyak, kamu justru panik berjamaah melihat *deadline* kantor yang balapan sama *deadline* tugas yang tinggal menghitung detik. Kalau ujung-ujungnya resmi menyandang gelar **Sahabat Remed**, santai saja—setidaknya kamu sudah berjuang di dua alam sekaligus. Tarik napas dulu, lalu hadapi tumpukan ini dengan tabah, karena cicilan dan UKT tidak peduli seberapa capek kamu hari ini.";
+
 function App() {
   const [tab, setTab] = useState(0);
   return h("div", null,
-    h("h1", null, "Penguji kode"),
-    h("p", { className: "sub" }, "Pilih tab, tempel kode di kiri, isi kasus uji di kanan (masukan dan keluaran yang diharapkan), lalu lihat apakah hasilnya sesuai beserta nilai tiap variabel."),
+    h("h1", null, "Code Checker"),
+    h("p", { className: "sub" }, rich(INTRO)),
     h("div", { className: "tabs", role: "tablist", "aria-label": "Jenis kode" }, TABS.map((t, n) =>
       h("button", { key: n, role: "tab", id: "tab-" + n, "aria-selected": tab === n, "aria-controls": "panel-" + n, className: tab === n ? "on" : "", onClick: () => setTab(n) }, t))),
     h("div", { role: "tabpanel", id: "panel-0", "aria-labelledby": "tab-0", hidden: tab !== 0 },
