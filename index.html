@@ -73,6 +73,23 @@ algoritma
 endprogram`,
     cases: [["3 5","47.1"],["1 3","3.14"],["10 6","628"]] },
   { name: "New pseudocode", code: "program contoh\nkamus\n    x : integer\nalgoritma\n    input(x)\n    output(x)\nendprogram", cases: [["7","7"]] },
+  { name: "Contoh (Hitung lembar uang)", code:
+`program HitungLembarUang
+kamus
+    tagihan, jumlah_lembar, sisa : integer
+algoritma
+    input(tagihan)
+
+    jumlah_lembar <- tagihan div 20000
+    sisa <- tagihan mod 20000
+
+    if (sisa > 0) then
+        jumlah_lembar <- jumlah_lembar + 1
+    endif
+
+    output(jumlah_lembar, "lembar")
+endprogram`,
+    cases: [["10000","1 lembar"],["20000","1 lembar"],["45000","3 lembar"],["100000","5 lembar"]] },
 ];
 
 // ---------- Penerjemah pseudocode -> JavaScript ----------
