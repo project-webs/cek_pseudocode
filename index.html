@@ -459,17 +459,17 @@ function Tester({ title, presets, runner, start, hint }) {
       h("p", { className: "small" }, hint)
     ),
     h("section", { className: "panel" },
-      h("h2", null, "Kasus uji"),
-      h("p", { className: "summary", role: "status" }, passed === cases.length && cases.length ? "Semua " + cases.length + " kasus sesuai." : passed + " dari " + cases.length + " kasus sesuai."),
+      h("h2", null, "Pengecekan output"),
+      h("p", { className: "summary", role: "status" }, passed === cases.length && cases.length ? "Semua " + cases.length + " output sesuai." : passed + " dari " + cases.length + " output sesuai."),
       h("div", { className: "tbl" }, h("table", null,
         h("thead", null, h("tr", null, ["Masukan", "Diharapkan", "Hasil", "Status", ""].map((t, n) => h("th", { key: n }, t)))),
         h("tbody", null, cases.map((c, n) => h("tr", { key: n },
-          h("td", null, h("input", { type: "text", value: c.i, "aria-label": "Masukan kasus " + (n + 1), onChange: (e) => setCase(n, "i", e.target.value) })),
-          h("td", null, h("input", { type: "text", value: c.e, "aria-label": "Keluaran diharapkan kasus " + (n + 1), onChange: (e) => setCase(n, "e", e.target.value) })),
+          h("td", null, h("input", { type: "text", value: c.i, "aria-label": "Masukan pengecekan " + (n + 1), onChange: (e) => setCase(n, "i", e.target.value) })),
+          h("td", null, h("input", { type: "text", value: c.e, "aria-label": "Keluaran diharapkan pengecekan " + (n + 1), onChange: (e) => setCase(n, "e", e.target.value) })),
           h("td", { className: "m" }, results[n].got || "-", results[n].error && h("div", { className: "err" }, results[n].error)),
           h("td", null, h("span", { className: "badge " + (results[n].ok ? "pass" : "fail") }, results[n].ok ? "Sesuai" : "Tidak sesuai")),
-          h("td", null, h("button", { onClick: () => setCases((cs) => cs.filter((_, x) => x !== n)), "aria-label": "Hapus kasus " + (n + 1) }, "×"))))))),
-      h("div", { className: "row b" }, h("button", { onClick: () => setCases((cs) => [...cs, { i: "", e: "" }]) }, "Tambah kasus")),
+          h("td", null, h("button", { onClick: () => setCases((cs) => cs.filter((_, x) => x !== n)), "aria-label": "Hapus pengecekan " + (n + 1) }, "×"))))))),
+      h("div", { className: "row b" }, h("button", { onClick: () => setCases((cs) => [...cs, { i: "", e: "" }]) }, "Tambah pengecekan")),
       h("p", { className: "small" }, "Beberapa masukan dipisah spasi atau koma, misalnya 3 5. Angka desimal dibandingkan dengan toleransi kecil.")
     ),
     h("section", { className: "panel vars-panel" },
@@ -477,7 +477,7 @@ function Tester({ title, presets, runner, start, hint }) {
       h("p", { className: "small" },
         !shown ? "Nilai variabel belum tersedia."
           : !Object.keys(shown.vars).length ? "Tidak ada variabel."
-          : "Nilai variabel setelah kasus uji " + (shownIndex + 1) + " dijalankan (masukan: " + (cases[shownIndex].i.trim() || "kosong") + ")."),
+          : "Nilai variabel setelah pengecekan output " + (shownIndex + 1) + " dijalankan (masukan: " + (cases[shownIndex].i.trim() || "kosong") + ")."),
       h("div", { className: "vars" },
         shown && Object.keys(shown.vars).map((k) => h("div", { className: "var-chip", key: k },
           h("span", { className: "var-name" }, k),
