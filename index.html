@@ -41,6 +41,11 @@ td.m{font-family:"JetBrains Mono",monospace;white-space:pre-wrap;word-break:brea
 .err{background:var(--badbg);color:var(--bad);border-radius:8px;padding:8px;font-family:"JetBrains Mono",monospace;font-size:.8rem;margin-top:4px}
 .small{color:var(--mute);font-size:.85rem;margin:10px 0 0}
 .tbl{overflow-x:auto}
+.vars-panel{margin-top:16px}
+.vars{display:flex;flex-wrap:wrap;gap:8px}
+.var-chip{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:8px;overflow:hidden;font:14px/1.4 "JetBrains Mono",ui-monospace,monospace}
+.var-name{padding:6px 10px;background:var(--bg);color:var(--mute);font-weight:600;border-right:1px solid var(--line)}
+.var-val{padding:6px 10px;color:var(--ink);word-break:break-all}
 </style>
 </head>
 <body>
@@ -101,7 +106,7 @@ function cond(c) {
     .replace(/\b(dan|and)\b/gi, "&&").replace(/\b(atau|or)\b/gi, "||").replace(/\b(tidak|not)\b/gi, "!")
     .replace(/([^<>!=])=(?!=)/g, "$1==");
 }
-function translate(code) {
+function translate(code, opts) {
   const js = [], vars = new Set(); let inDecl = false;
   const lines = code.split("\n");
   for (let i = 0; i < lines.length; i++) {
@@ -134,16 +139,27 @@ function translate(code) {
     m[1].split(",").forEach((n) => vars.add(n.trim()));
     if (m[2]) js.push(m[1].trim() + " = " + expr(m[2]) + ";");
   }
+  if (opts && opts.capture && vars.size) {
+    js.push("__vars({" + [...vars].map((n) => JSON.stringify(n) + ": (typeof " + n + " !== 'undefined' ? " + n + " : undefined)").join(", ") + "});");
+  }
   return (vars.size ? "let " + [...vars].join(",") + ";" : "") + js.join("\n");
 }
-function run(code, inputText) {
-  const body = translate(code);
+function run(code, inputText, onVars) {
+  const body = translate(code, { capture: !!onVars });
+  const captured = {};
   const toks = inputText.split(/[\s,;]+/).filter(Boolean).map((t) => (isNaN(t) ? t : Number(t)));
   let k = 0, __g = 0; const out = [];
   const next = () => { if (k >= toks.length) throw new Error("Masukan kurang: program meminta lebih banyak input"); return toks[k++]; };
   const fmt = (v) => (typeof v === "number" && !Number.isInteger(v) ? String(Number(v.toPrecision(12))) : String(v));
-  new Function("__next", "__out", "__fmt", "__g", body)(next, out, fmt, 0);
+  const grab = (v) => { Object.assign(captured, v || {}); };
+  new Function("__next", "__out", "__fmt", "__g", "__vars", body)(next, out, fmt, 0, grab);
+  if (onVars) onVars(captured);
   return out.join("\n");
+}
+function fmtVar(v) {
+  if (v === undefined || v === null) return "-";
+  if (typeof v === "number" && !Number.isInteger(v)) return String(Number(v.toPrecision(12)));
+  return String(v);
 }
 function same(a, b) {
   a = a.trim(); b = b.trim();
@@ -171,10 +187,13 @@ function App() {
   const setCase = (n, f, v) => setCases((cs) => cs.map((c, x) => (x === n ? { ...c, [f]: v } : c)));
 
   const results = useMemo(() => cases.map((c) => {
-    try { const got = run(code, c.i); return { got, ok: same(got, c.e) }; }
-    catch (e) { return { got: "", ok: false, error: e.message }; }
+    let vars = {};
+    try { const got = run(code, c.i, (v) => { vars = v; }); return { got, ok: same(got, c.e), vars }; }
+    catch (e) { return { got: "", ok: false, error: e.message, vars: null }; }
   }), [code, cases]);
   const passed = results.filter((r) => r.ok).length;
+  const shown = results.find((r) => r.vars);
+  const shownIndex = shown ? results.indexOf(shown) : -1;
 
   return h("div", null,
     h("h1", null, "Penguji pseudocode"),
@@ -199,6 +218,17 @@ function App() {
             h("td", null, h("button", { onClick: () => setCases((cs) => cs.filter((_, x) => x !== n)), "aria-label": "Hapus kasus " + (n + 1) }, "×"))))))),
         h("div", { className: "row b" }, h("button", { onClick: () => setCases((cs) => [...cs, { i: "", e: "" }]) }, "Tambah kasus")),
         h("p", { className: "small" }, "Beberapa masukan dipisah spasi atau koma, misalnya 3 5. Angka desimal dibandingkan dengan toleransi kecil.")
+      ),
+      h("section", { className: "panel vars-panel" },
+        h("h2", null, "Nilai variabel"),
+        h("p", { className: "small" },
+          !shown ? "Nilai variabel belum tersedia."
+            : !Object.keys(shown.vars).length ? "Tidak ada variabel."
+            : "Nilai variabel setelah kasus uji " + (shownIndex + 1) + " dijalankan (masukan: " + (cases[shownIndex].i.trim() || "kosong") + ")."),
+        h("div", { className: "vars" },
+          shown && Object.keys(shown.vars).map((k) => h("div", { className: "var-chip", key: k },
+            h("span", { className: "var-name" }, k),
+            h("span", { className: "var-val" }, fmtVar(shown.vars[k])))))
       )
     )
   );
