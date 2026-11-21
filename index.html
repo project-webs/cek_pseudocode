@@ -346,29 +346,6 @@ function runGo(code, inputText, onVars) {
 }
 
 const GO_PRESETS = [
-  { name: "Contoh (Diskon belanja)", code:
-`package main
-
-import "fmt"
-
-func main() {
-\tvar belanja, bayar int
-
-\tfmt.Scan(&belanja)
-
-\tif belanja < 100000 {
-\t\tbayar = belanja
-\t} else if belanja < 200000 {
-\t\tbayar = belanja - (belanja * 5 / 100)
-\t} else if belanja < 500000 {
-\t\tbayar = belanja - (belanja * 10 / 100)
-\t} else {
-\t\tbayar = belanja - (belanja * 20 / 100)
-\t}
-
-\tfmt.Println(bayar)
-}`,
-    cases: [["50000","50000"],["150000","142500"],["300000","270000"],["600000","480000"]] },
   { name: "New Go", code: "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tvar x int\n\tfmt.Scan(&x)\n\tfmt.Println(x)\n}", cases: [["7","7"]] },
   { name: "Contoh (Jumlah lembar 20000)", code:
 `package main
@@ -390,25 +367,6 @@ func main() {
 \tfmt.Println(jumlahLembar, "lembar")
 }`,
     cases: [["10000","1 lembar"],["20000","1 lembar"],["45000","3 lembar"],["100000","5 lembar"]] },
-  { name: "Contoh (Urut naik/turun)", code:
-`package main
-
-import "fmt"
-
-func main() {
-\tvar a, b, c int
-
-\tfmt.Scan(&a, &b, &c)
-
-\tif a < b && b < c {
-\t\tfmt.Println("Naik")
-\t} else if a > b && b > c {
-\t\tfmt.Println("Turun")
-\t} else {
-\t\tfmt.Println("Tidak urut")
-\t}
-}`,
-    cases: [["1 2 3","Naik"],["3 2 1","Turun"],["1 3 2","Tidak urut"]] },
 ];
 
 function Editor({ value, onChange, label }) {
