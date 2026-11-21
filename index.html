@@ -17,11 +17,11 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Bricolage Grotesque",system-ui,sans-serif}
-main{max-width:1040px;margin:0 auto;padding:24px 16px 48px}
+main{max-width:1240px;margin:0 auto;padding:24px 16px 48px}
 h1{font-size:1.7rem;margin:0 0 4px}
 p.sub{margin:0 0 16px;color:var(--mute);max-width:66ch}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
 h2{font-size:1.05rem;margin:0 0 10px}
 textarea{width:100%;height:340px;resize:vertical;font:14px/1.6 "JetBrains Mono",ui-monospace,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:12px;tab-size:2}
@@ -45,7 +45,13 @@ td.m{font-family:"JetBrains Mono",monospace;white-space:pre-wrap;word-break:brea
 .err{background:var(--badbg);color:var(--bad);border-radius:8px;padding:8px;font-family:"JetBrains Mono",monospace;font-size:.8rem;margin-top:4px}
 .small{color:var(--mute);font-size:.85rem;margin:10px 0 0}
 .tbl{overflow-x:auto}
-.vars-panel{margin-top:16px}
+.tbl table{min-width:720px}
+.tbl th:nth-child(1),.tbl td:nth-child(1){min-width:230px}
+.tbl th:nth-child(2),.tbl td:nth-child(2){min-width:140px}
+.tbl th:nth-child(3),.tbl td:nth-child(3){min-width:160px}
+.tbl th:nth-child(4),.tbl td:nth-child(4){width:1%;white-space:nowrap}
+.tbl th:nth-child(5),.tbl td:nth-child(5){width:1%;white-space:nowrap}
+.vars-panel{margin-top:16px;grid-column:1 / -1}
 [hidden]{display:none!important}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px}
 .tabs button{padding:9px 16px}
