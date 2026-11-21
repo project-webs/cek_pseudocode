@@ -456,7 +456,6 @@ function Tester({ title, presets, runner, start, hint }) {
       h("h2", null, title),
       h("div", { className: "row" }, presets.map((p, n) => h("button", { key: p.name, className: n === pi ? "on" : "", onClick: () => pick(n) }, p.name))),
       h(Editor, { value: code, onChange: (e) => setCode(e.target.value), label: "Editor " + title }),
-      h("p", { className: "small" }, hint)
     ),
     h("section", { className: "panel" },
       h("h2", null, "Pengecekan output"),
@@ -486,8 +485,7 @@ function Tester({ title, presets, runner, start, hint }) {
   );
 }
 
-const PSEUDO_HINT = "Didukung: program/kamus/algoritma, constant, deklarasi tipe, input(a, b) atau BACA, output(x) atau CETAK, = atau <-, JIKA…MAKA/JIKA TIDAK/AKHIR JIKA, SELAMA…LAKUKAN, UNTUK i = 1 SAMPAI n LAKUKAN, mod, div, DAN/ATAU. Padanan Inggris (if/then/else/while/for/to/do) juga bisa.";
-const GO_HINT = "Didukung: package main, import, func main(), var/const/:=, fmt.Scan/Scanln/Scanf(&a, &b), fmt.Println/Print/Printf, if/else if/else, for (3 bentuk, gaya while, range n), break/continue, += -= ++ --, math.Sqrt dkk., float64()/int(). Pembagian int/int dibulatkan seperti Go. Belum didukung: fungsi lain, array/slice, map, struct, switch, bufio.";
+
 const TABS = ["1. Cek pseudocode", "2. Cek Golang"];
 
 function rich(text) {
@@ -508,9 +506,9 @@ function App() {
     h("div", { className: "tabs", role: "tablist", "aria-label": "Jenis kode" }, TABS.map((t, n) =>
       h("button", { key: n, role: "tab", id: "tab-" + n, "aria-selected": tab === n, "aria-controls": "panel-" + n, className: tab === n ? "on" : "", onClick: () => setTab(n) }, t))),
     h("div", { role: "tabpanel", id: "panel-0", "aria-labelledby": "tab-0", hidden: tab !== 0 },
-      h(Tester, { title: "Pseudocode", presets: PRESETS, runner: run, start: 1, hint: PSEUDO_HINT })),
+      h(Tester, { title: "Pseudocode", presets: PRESETS, runner: run, start: 1 })),
     h("div", { role: "tabpanel", id: "panel-1", "aria-labelledby": "tab-1", hidden: tab !== 1 },
-      h(Tester, { title: "Kode Go", presets: GO_PRESETS, runner: runGo, start: 1, hint: GO_HINT }))
+      h(Tester, { title: "Kode Go", presets: GO_PRESETS, runner: runGo, start: 1 }))
   );
 }
 ReactDOM.createRoot(document.getElementById("root")).render(h(App));
