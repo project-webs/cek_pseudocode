@@ -17,7 +17,7 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Bricolage Grotesque",system-ui,sans-serif}
-main{max-width:1400px;margin:0 auto;padding:24px 16px 48px}
+main{max-width:1600px;margin:0 auto;padding:24px 16px 48px}
 h1{font-size:1.7rem;margin:0 0 4px}
 p.sub{margin:0 0 16px;color:var(--mute);max-width:none}
 .grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:16px}
@@ -450,7 +450,7 @@ function App() {
   const [tab, setTab] = useState(0);
   return h("div", null,
     h("h1", null, "Code Checker"),
-    h("p", { className: "sub" }, rich(INTRO1), h("br"), rich(INTRO2), h("br"), h("br"), rich(INTRO3)),
+    h("p", { className: "sub" }, rich(INTRO1), h("br"), rich(INTRO2), h("br"), rich(INTRO3)),
     h("div", { className: "tabs", role: "tablist", "aria-label": "Jenis kode" }, TABS.map((t, n) =>
       h("button", { key: n, role: "tab", id: "tab-" + n, "aria-selected": tab === n, "aria-controls": "panel-" + n, className: tab === n ? "on" : "", onClick: () => setTab(n) }, t))),
     h("div", { role: "tabpanel", id: "panel-0", "aria-labelledby": "tab-0", hidden: tab !== 0 },
