@@ -442,13 +442,15 @@ function rich(text) {
   });
 }
 
-const INTRO = "Halo mahasiswa PJJ BS1IF-50-PJJ-01! Di saat orang lain tidur nyenyak, kamu justru panik berjamaah melihat *deadline* kantor yang balapan sama *deadline* tugas yang tinggal menghitung detik. Kalau ujung-ujungnya resmi menyandang gelar **Sahabat Remed**, santai saja—setidaknya kamu sudah berjuang di dua alam sekaligus. Tarik napas dulu, lalu hadapi tumpukan ini dengan tabah, karena cicilan dan UKT tidak peduli seberapa capek kamu hari ini.";
+const INTRO1 = "Hi.. temen2 PJJ BS1IF-50-PJJ-01...";
+const INTRO2 = "Di saat orang lain tidur nyenyak, kita semua justru panik berjamaah melihat *deadline* kantor yang balapan sama *deadline* tugas yang tinggal menghitung detik. Kalau ujung-ujungnya resmi menyandang gelar **Sahabat Remed**, santai aja, setidaknya kita udah berjuang di dua alam sekaligus. Tarik napas dulu, lalu hadapi tumpukan ini dengan tabah, karena cicilan dan UKT tidak peduli seberapa capek kita hari ini...";
+const INTRO3 = "*Semoga tools ini bermanfaat dan bisa ngebantu temen2 semua...*";
 
 function App() {
   const [tab, setTab] = useState(0);
   return h("div", null,
     h("h1", null, "Code Checker"),
-    h("p", { className: "sub" }, rich(INTRO)),
+    h("p", { className: "sub" }, rich(INTRO1), h("br"), rich(INTRO2), h("br"), h("br"), rich(INTRO3)),
     h("div", { className: "tabs", role: "tablist", "aria-label": "Jenis kode" }, TABS.map((t, n) =>
       h("button", { key: n, role: "tab", id: "tab-" + n, "aria-selected": tab === n, "aria-controls": "panel-" + n, className: tab === n ? "on" : "", onClick: () => setTab(n) }, t))),
     h("div", { role: "tabpanel", id: "panel-0", "aria-labelledby": "tab-0", hidden: tab !== 0 },
