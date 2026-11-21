@@ -51,7 +51,6 @@ td.m{font-family:"JetBrains Mono",monospace;white-space:pre-wrap;word-break:brea
 .tbl th:nth-child(3),.tbl td:nth-child(3){width:30%}
 .tbl th:nth-child(4),.tbl td:nth-child(4){width:1%;white-space:nowrap}
 .tbl th:nth-child(5),.tbl td:nth-child(5){width:1%;white-space:nowrap}
-.tests-panel{grid-column:1 / -1}
 .vars-panel{margin-top:16px;grid-column:1 / -1}
 [hidden]{display:none!important}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 16px}
@@ -458,7 +457,7 @@ function Tester({ title, presets, runner, start, hint }) {
       h(Editor, { value: code, onChange: (e) => setCode(e.target.value), label: "Editor " + title }),
       h("p", { className: "small" }, hint)
     ),
-    h("section", { className: "panel tests-panel" },
+    h("section", { className: "panel" },
       h("h2", null, "Kasus uji"),
       h("p", { className: "summary", role: "status" }, passed === cases.length && cases.length ? "Semua " + cases.length + " kasus sesuai." : passed + " dari " + cases.length + " kasus sesuai."),
       h("div", { className: "tbl" }, h("table", null,
