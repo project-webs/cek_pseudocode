@@ -71,18 +71,6 @@ const h = React.createElement;
 const { useState, useMemo, useRef } = React;
 
 const PRESETS = [
-  { name: "Contoh (Volume kerucut)", code:
-`program volume_kerucut
-kamus
-    constant pi : real = 3.14
-    r, t : integer
-    volume : real
-algoritma
-    input(r, t)
-    volume = (1 / 3) * pi * r * r * t
-    output(volume)
-endprogram`,
-    cases: [["3 5","47.1"],["1 3","3.14"],["10 6","628"]] },
   { name: "New pseudocode", code: "program contoh\nkamus\n    x : integer\nalgoritma\n    input(x)\n    output(x)\nendprogram", cases: [["7","7"]] },
   { name: "Contoh (Hitung lembar uang)", code:
 `program HitungLembarUang
