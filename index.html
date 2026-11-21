@@ -354,21 +354,26 @@ func main() {
 }`,
     cases: [["50000","50000"],["150000","142500"],["300000","270000"],["600000","480000"]] },
   { name: "New Go", code: "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tvar x int\n\tfmt.Scan(&x)\n\tfmt.Println(x)\n}", cases: [["7","7"]] },
-  { name: "Contoh (Faktorial)", code:
+  { name: "Contoh (Jumlah lembar 20000)", code:
 `package main
 
 import "fmt"
 
 func main() {
-\tvar n int
-\tfmt.Scan(&n)
-\thasil := 1
-\tfor i := 1; i <= n; i++ {
-\t\thasil *= i
+\tvar tagihan, jumlahLembar, sisa int
+
+\tfmt.Scan(&tagihan)
+
+\tjumlahLembar = tagihan / 20000
+\tsisa = tagihan % 20000
+
+\tif sisa > 0 {
+\t\tjumlahLembar = jumlahLembar + 1
 \t}
-\tfmt.Println("Faktorial:", hasil)
+
+\tfmt.Println(jumlahLembar, "lembar")
 }`,
-    cases: [["5","Faktorial: 120"],["0","Faktorial: 1"]] },
+    cases: [["10000","1 lembar"],["20000","1 lembar"],["45000","3 lembar"],["100000","5 lembar"]] },
   { name: "Contoh (Urut naik/turun)", code:
 `package main
 
