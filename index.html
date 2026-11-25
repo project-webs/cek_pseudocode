@@ -1235,5 +1235,24 @@ function App() {
 }
 ReactDOM.createRoot(document.getElementById("root")).render(h(App));
 </script>
+<script>
+(function () {
+  try {
+    var K = "ck_vid";
+    var vid = localStorage.getItem(K);
+    if (!vid) {
+      vid = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + "-" + Math.random().toString(36).slice(2));
+      localStorage.setItem(K, vid);
+    }
+    var payload = JSON.stringify({ vid: vid, path: location.pathname, referrer: document.referrer || "" });
+    var url = "https://pjj-50-01-apps.netlify.app/.netlify/functions/track";
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url, new Blob([payload], { type: "text/plain" }));
+    } else {
+      fetch(url, { method: "POST", body: payload, keepalive: true, headers: { "Content-Type": "text/plain" } });
+    }
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>
