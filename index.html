@@ -36,6 +36,8 @@ textarea:focus,button:focus-visible,input:focus-visible{outline:3px solid var(--
 .row.b{margin:10px 0 0}
 button{font:inherit;font-weight:700;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
 button.on{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+select{font:inherit;font-weight:700;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;max-width:100%}
+select:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
 table{width:100%;border-collapse:collapse;font-size:.92rem}
 th,td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
 td.m{font-family:"JetBrains Mono",monospace;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere}
@@ -72,7 +74,10 @@ const { useState, useMemo, useRef } = React;
 
 const PRESETS = [
   { name: "New", code: "program contoh\nkamus\n    x : integer\nalgoritma\n    input(x)\n    output(x)\nendprogram", cases: [["7","7"]] },
-  { name: "Contoh (Hitung lembar uang)", code:
+];
+
+const PSEUDO_EXAMPLES = [
+  { name: "Hitung lembar uang", code:
 `program HitungLembarUang
 kamus
     tagihan, jumlah_lembar, sisa : integer
@@ -89,6 +94,159 @@ algoritma
     output(jumlah_lembar, "lembar")
 endprogram`,
     cases: [["10000","1 lembar"],["20000","1 lembar"],["45000","3 lembar"],["100000","5 lembar"]] },
+  { name: "Switch hari", code:
+`program PilihHari
+kamus
+    hari : integer
+algoritma
+    input(hari)
+
+    switch (hari)
+        case 1:
+            output("Senin")
+        case 2:
+            output("Selasa")
+        case 3:
+            output("Rabu")
+        otherwise:
+            output("Lainnya")
+    endswitch
+endprogram`,
+    cases: [["1","Senin"],["2","Selasa"],["3","Rabu"],["7","Lainnya"]] },
+  { name: "Jumlah ganjil dengan repeat-until", code:
+`program JumlahGanjil
+kamus
+    n, i, total : integer
+algoritma
+    input(n)
+    i = 1
+    total = 0
+    repeat
+        if (i mod 2 = 1) then
+            total = total + i
+        endif
+        i = i + 1
+    until (i > n)
+    output(total)
+endprogram`,
+    cases: [["6","9"],["7","16"],["1","1"]] },
+  { name: "Cek panjang nama", code:
+`program CekNama
+kamus
+    nama : string
+algoritma
+    input(nama)
+    if (panjang(nama) > 5) then
+        output("panjang")
+    else
+        output("pendek")
+    endif
+    output(substr(nama, 0, 3))
+endprogram`,
+    cases: [["Budianto","panjang\nBud"],["Ali","pendek\nAli"]] },
+  { name: "Faktorial iteratif", code:
+`program FaktorialIteratif
+kamus
+    n, i, hasil : integer
+algoritma
+    input(n)
+    hasil = 1
+    for i = 1 to n do
+        hasil = hasil * i
+    endfor
+    output(hasil)
+endprogram`,
+    cases: [["5","120"],["0","1"],["3","6"]] },
+  { name: "Genap atau ganjil", code:
+`program CekGenapGanjil
+kamus
+    x : integer
+algoritma
+    input(x)
+    if (x mod 2 = 0) then
+        output("genap")
+    else
+        output("ganjil")
+    endif
+endprogram`,
+    cases: [["4","genap"],["5","ganjil"]] },
+  { name: "Rata-rata nilai", code:
+`program RataRataNilai
+kamus
+    n, i, nilai, jumlah : integer
+algoritma
+    input(n)
+    jumlah = 0
+    for i = 1 to n do
+        input(nilai)
+        jumlah = jumlah + nilai
+    endfor
+    output(jumlah / n)
+endprogram`,
+    cases: [["3 70 80 90","80"],["2 50 75","62.5"]] },
+  { name: "Grade nilai", code:
+`program GradeNilai
+kamus
+    nilai : integer
+algoritma
+    input(nilai)
+    if (nilai >= 90) then
+        output("A")
+    else if (nilai >= 75) then
+        output("B")
+    else if (nilai >= 60) then
+        output("C")
+    else
+        output("D")
+    endif
+endprogram`,
+    cases: [["95","A"],["80","B"],["60","C"],["50","D"]] },
+  { name: "Gabung nama", code:
+`program GabungNama
+kamus
+    depan, belakang, nama : string
+algoritma
+    input(depan, belakang)
+    nama = konkatenasi(depan, " ", belakang)
+    output(nama)
+    output(panjang(nama))
+endprogram`,
+    cases: [["Budi Santoso","Budi Santoso\n12"],["Ani Rahmawati","Ani Rahmawati\n13"]] },
+  { name: "Hitung mundur", code:
+`program HitungMundur
+kamus
+    n : integer
+algoritma
+    input(n)
+    while (n > 0) do
+        output(n)
+        n = n - 1
+    endwhile
+endprogram`,
+    cases: [["3","3\n2\n1"],["1","1"]] },
+  { name: "Cek bilangan prima", code:
+`program CekPrima
+kamus
+    n, i, prima : integer
+algoritma
+    input(n)
+    prima = 1
+    if (n < 2) then
+        prima = 0
+    else
+        for i = 2 to n - 1 do
+            if (n mod i = 0) then
+                prima = 0
+            endif
+        endfor
+    endif
+    if (prima = 1) then
+        output("prima")
+    else
+        output("bukan prima")
+    endif
+endprogram`,
+    cases: [["7","prima"],["1","bukan prima"],["9","bukan prima"]] },
 ];
 
 // ---------- Penerjemah pseudocode -> JavaScript ----------
@@ -115,10 +273,16 @@ function unwrap(s) { // buang kurung terluar: input(a, b) -> a, b
   return s.slice(1, -1);
 }
 function expr(e) {
+  const strs = [];
+  e = e.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g, (x) => { strs.push(x); return "\u0002" + (strs.length - 1) + "\u0003"; });
   const op = "(\\([^()]*\\)|[\\w.]+)";
-  return e.replace(/×/g, "*").replace(/÷/g, "/")
+  e = e.replace(/×/g, "*").replace(/÷/g, "/")
     .replace(new RegExp(op + "\\s+div\\s+" + op, "gi"), "Math.trunc($1/$2)")
-    .replace(/\bmod\b/gi, "%").replace(/\bbenar\b/gi, "true").replace(/\bsalah\b/gi, "false");
+    .replace(/\bmod\b/gi, "%").replace(/\bbenar\b/gi, "true").replace(/\bsalah\b/gi, "false")
+    .replace(/\b(?:panjang|length)\s*\(/gi, "__len(")
+    .replace(/\bsubstr\s*\(/gi, "__sub(")
+    .replace(/\bkonkatenasi\s*\(/gi, "__cat(");
+  return e.replace(/\u0002(\d+)\u0003/g, (_, n) => strs[+n]);
 }
 function cond(c) {
   return expr(c).replace(/≥/g, ">=").replace(/≤/g, "<=").replace(/≠|<>/g, "!=")
@@ -126,7 +290,7 @@ function cond(c) {
     .replace(/([^<>!=])=(?!=)/g, "$1==");
 }
 function translate(code, opts) {
-  const js = [], vars = new Set(); let inDecl = false;
+  const js = [], vars = new Set(); let inDecl = false, inSwitch = false, sawCase = false;
   const lines = code.split("\n");
   for (let i = 0; i < lines.length; i++) {
     const raw = lines[i], s = raw.replace(/\/\/.*$/, "").trim();
@@ -139,6 +303,29 @@ function translate(code, opts) {
     if (/^(kamus|deklarasi|declare|var)\b/i.test(s) && s.includes(":")) { m = s.replace(/^\w+\s+/, ""); declare(m); continue; }
     if (inDecl) { declare(s); continue; }
     if (/^(akhir\s*jika|selesai\s*jika|end\s*if|endif)$/i.test(s) || /^(akhir\s*selama|end\s*while|endwhile|akhir\s*untuk|end\s*for|endfor)$/i.test(s)) { js.push("}"); continue; }
+    if (/^(?:repeat|ulangi)\s*$/i.test(s)) { js.push("do { if (++__g > 100000) throw new Error('Perulangan tidak berhenti');"); continue; }
+    if ((m = s.match(/^(?:until|sampai)\s+(.+)$/i))) { js.push("} while (!(" + cond(unwrap(m[1])) + "));"); continue; }
+    if (/^(endswitch|end\s*switch|akhir\s*(?:switch|pilih)|selesai\s*(?:switch|pilih))$/i.test(s)) {
+      if (!inSwitch) bad("endswitch tanpa switch");
+      if (sawCase) js.push("break;");
+      inSwitch = false; sawCase = false;
+      js.push("}"); continue;
+    }
+    if ((m = s.match(/^(?:switch|pilih)\s+(.+)$/i))) {
+      js.push("switch (" + expr(unwrap(m[1])) + ") {");
+      inSwitch = true; sawCase = false; continue;
+    }
+    if (inSwitch && (m = s.match(/^(?:case|kasus)\s+(.+?)\s*:?\s*$/i))) {
+      if (sawCase) js.push("break;");
+      sawCase = true;
+      js.push("case " + expr(m[1]) + ":"); continue;
+    }
+    if (inSwitch && /^(?:default|otherwise|lainnya)\s*:?\s*$/i.test(s)) {
+      if (sawCase) js.push("break;");
+      sawCase = true;
+      js.push("default:"); continue;
+    }
+    if (/^(?:break|henti|keluar)$/i.test(s)) { js.push("break;"); continue; }
     if (/^(jika\s*tidak|lainnya|selain\s*itu|else)$/i.test(s)) { js.push("} else {"); continue; }
     if ((m = s.match(/^(?:else\s*if|jika\s*tidak\s*jika|lainnya\s*jika)\s+(.+?)\s+(?:then|maka)$/i))) { js.push("} else if (" + cond(m[1]) + ") {"); continue; }
     if ((m = s.match(/^(?:if|jika)\s+(.+?)\s+(?:then|maka)$/i))) { js.push("if (" + cond(m[1]) + ") {"); continue; }
@@ -171,7 +358,10 @@ function run(code, inputText, onVars) {
   const next = () => { if (k >= toks.length) throw new Error("Masukan kurang: program meminta lebih banyak input"); return toks[k++]; };
   const fmt = (v) => (typeof v === "number" && !Number.isInteger(v) ? String(Number(v.toPrecision(12))) : String(v));
   const grab = (v) => { Object.assign(captured, v || {}); };
-  new Function("__next", "__out", "__fmt", "__g", "__vars", body)(next, out, fmt, 0, grab);
+  const len = (s) => String(s).length;
+  const sub = (s, i, n) => String(s).slice(Number(i), Number(i) + Number(n));
+  const cat = (...a) => a.map((x) => String(x)).join("");
+  new Function("__next", "__out", "__fmt", "__g", "__vars", "__len", "__sub", "__cat", body)(next, out, fmt, 0, grab, len, sub, cat);
   if (onVars) onVars(captured);
   return out.join("\n");
 }
@@ -224,13 +414,20 @@ function gexpr(e, fl) {
   e = gdiv(e, isF)
     .replace(/\bfloat(?:32|64)\(/g, "(").replace(/\bint(?:8|16|32|64)?\(/g, "Math.trunc(")
     .replace(/\bmath\.(\w+)/g, (_, n) => n === "Pi" ? "Math.PI" : n === "E" ? "Math.E" : "Math." + n[0].toLowerCase() + n.slice(1))
-    .replace(/\bfmt\.Sprintf\(/g, "__pf(").replace(/\blen\(([^()]*)\)/g, "($1).length").replace(/\bnil\b/g, "null");
+    .replace(/\bfmt\.Sprintf\(/g, "__pf(").replace(/\bfmt\.Sprint\(/g, "__sp(")
+    .replace(/\bstrings\.Split\(/g, "__split(").replace(/\bstrings\.Join\(/g, "__join(")
+    .replace(/\bstrings\.ToUpper\(/g, "__up(").replace(/\bstrings\.ToLower\(/g, "__low(")
+    .replace(/\bstrings\.TrimSpace\(/g, "__trim(").replace(/\bstrings\.Contains\(/g, "__contains(")
+    .replace(/\bstrings\.HasPrefix\(/g, "__hasPrefix(").replace(/\bstrings\.HasSuffix\(/g, "__hasSuffix(")
+    .replace(/\bstrings\.Index\(/g, "__index(")
+    .replace(/\bstrconv\.Atoi\(/g, "__atoiE(").replace(/\bstrconv\.Itoa\(/g, "__itoa(")
+    .replace(/\blen\(/g, "__len(").replace(/\bnil\b/g, "null")
   return e.replace(/\u0002(\d+)\u0003/g, (_, n) => strs[+n]);
 }
 const GTYPES = "int|int8|int16|int32|int64|uint|uint8|uint16|uint32|uint64|float32|float64|string|bool|byte|rune";
 function translateGo(code, opts) {
   const js = [], vars = new Set(), fl = new Set();
-  let depth = 0, inImp = false, inVar = "", started = false;
+  let depth = 0, inImp = false, inVar = "", started = false, switchDepth = 0, sawCase = false, fallThru = false;
   const isF = (t) => /\d\.|\.\d|float(32|64)\(|math\./.test(t) || (t.match(/[A-Za-z_]\w*/g) || []).some((n) => fl.has(n));
   const gx = (e) => gexpr(e, fl);
   const bad = (m) => { throw new Error(m); };
@@ -254,6 +451,10 @@ function translateGo(code, opts) {
     let m;
     if ((m = s.match(/^([A-Za-z_]\w*(?:\s*,\s*[A-Za-z_]\w*)*)\s*:=\s*(.+)$/))) {
       const ns = m[1].split(",").map((x) => x.trim()), rs = splitTop(m[2]);
+      if (ns.length === 2 && rs.length === 1 && /^strconv\.Atoi\s*\(/.test(rs[0])) {
+        ns.forEach((n) => vars.add(n));
+        return "[" + ns.join(",") + "] = " + gx(rs[0]);
+      }
       if (ns.length !== rs.length) bad("jumlah variabel dan nilai tidak sama");
       ns.forEach((n, k) => { vars.add(n); if (isF(rs[k])) fl.add(n); });
       return ns.length === 1 ? ns[0] + " = " + gx(rs[0]) : "[" + ns.join(",") + "] = [" + rs.map(gx).join(",") + "]";
@@ -269,6 +470,7 @@ function translateGo(code, opts) {
     return null;
   }
   const G = " if (++__g > 100000) throw new Error('Perulangan tidak berhenti');";
+  const closeCase = () => { if (sawCase && !fallThru) js.push("break;"); fallThru = false; };
   const lines = code.split("\n");
   for (let i = 0; i < lines.length; i++) {
     const raw = lines[i], s = stripC(raw).trim();
@@ -283,11 +485,24 @@ function translateGo(code, opts) {
       if (/^(var|const)\b/.test(s)) { declGo(s); continue; }
       if (/^func\b/.test(s)) { if (!/^func\s+main\s*\(\s*\)\s*\{$/.test(s)) bad("hanya func main() yang didukung"); depth = 1; started = true; continue; }
       if (!started) bad("di luar func main() hanya boleh package, import, var, const");
-      if (s[0] === "}") { depth--; if (depth === 0) { started = false; continue; } }
+      if (s === "fallthrough") { if (!switchDepth) bad("fallthrough di luar switch"); fallThru = true; continue; }
+      if (s[0] === "}") {
+        const closesSwitch = switchDepth > 0 && depth === switchDepth;
+        depth--;
+        if (closesSwitch) { closeCase(); switchDepth = 0; sawCase = false; }
+        if (depth === 0) { started = false; continue; }
+      }
       if (s === "}") o = "}";
       else if ((m = s.match(/^\}\s*else\s+if\s+(.+?)\s*\{$/))) o = "} else if (" + gx(m[1]) + ") {";
       else if (/^\}\s*else\s*\{$/.test(s)) o = "} else {";
       else if ((m = s.match(/^if\s+(.+?)\s*\{$/))) o = "if (" + gx(m[1]) + ") {";
+      else if ((m = s.match(/^switch\s+(.+?)\s*\{$/))) { o = "switch (" + gx(m[1]) + ") {"; switchDepth = depth + 1; sawCase = false; fallThru = false; }
+      else if ((m = s.match(/^case\s+(.+?):\s*$/))) {
+        closeCase();
+        sawCase = true;
+        o = splitTop(m[1]).map(gx).map((lab) => "case " + lab + ":").join(" ");
+      }
+      else if (/^default\s*:\s*$/.test(s)) { closeCase(); sawCase = true; o = "default:"; }
       else if ((m = s.match(/^for\s*(.*?)\s*\{$/))) {
         const body = m[1];
         if (body === "") o = "while (true) {" + G;
@@ -340,14 +555,34 @@ function runGo(code, inputText, onVars) {
     else t = fmt(v);
     wd = +wd || 0; return l ? t.padEnd(wd) : t.padStart(wd);
   }); };
-  new Function("__next", "__w", "__fmt", "__pr", "__pf", "__idiv", "__g", "__vars", body)(next, w, fmt, pr, pf, idiv, 0, (v) => Object.assign(captured, v || {}));
+  const sp = (...a) => pr(a);
+  const split = (s, sep) => String(s).split(String(sep));
+  const join = (a, sep) => a.map((x) => String(x)).join(String(sep));
+  const up = (s) => String(s).toUpperCase();
+  const low = (s) => String(s).toLowerCase();
+  const trim = (s) => String(s).trim();
+  const contains = (s, sub) => String(s).includes(String(sub));
+  const hasPrefix = (s, p) => String(s).startsWith(String(p));
+  const hasSuffix = (s, p) => String(s).endsWith(String(p));
+  const index = (s, sub) => String(s).indexOf(String(sub));
+  const len = (v) => Array.isArray(v) ? v.length : String(v).length;
+  const atoi = (s) => { const n = parseInt(String(s), 10); return Number.isNaN(n) ? 0 : n; };
+  const atoiE = (s) => { const n = parseInt(String(s), 10); return Number.isNaN(n) ? [0, new Error("strconv.Atoi: parsing " + JSON.stringify(String(s)) + ": invalid syntax")] : [n, null]; };
+  const itoa = (n) => String(Math.trunc(Number(n)));
+  new Function("__next", "__w", "__fmt", "__pr", "__pf", "__idiv", "__g", "__vars",
+    "__sp", "__split", "__join", "__up", "__low", "__trim", "__contains", "__hasPrefix", "__hasSuffix", "__index", "__len", "__atoi", "__atoiE", "__itoa",
+    body)(next, w, fmt, pr, pf, idiv, 0, (v) => Object.assign(captured, v || {}),
+    sp, split, join, up, low, trim, contains, hasPrefix, hasSuffix, index, len, atoi, atoiE, itoa);
   if (onVars) onVars(captured);
   return buf.replace(/\s+$/, "");
 }
 
 const GO_PRESETS = [
   { name: "New Go", code: "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tvar x int\n\tfmt.Scan(&x)\n\tfmt.Println(x)\n}", cases: [["7","7"]] },
-  { name: "Contoh (Jumlah lembar 20000)", code:
+];
+
+const GO_EXAMPLES = [
+  { name: "Jumlah lembar 20000", code:
 `package main
 
 import "fmt"
@@ -367,6 +602,87 @@ func main() {
 \tfmt.Println(jumlahLembar, "lembar")
 }`,
     cases: [["10000","1 lembar"],["20000","1 lembar"],["45000","3 lembar"],["100000","5 lembar"]] },
+  { name: "Switch hari", code:
+`package main
+
+import "fmt"
+
+func main() {
+\tvar hari int
+
+\tfmt.Scan(&hari)
+
+\tswitch hari {
+\tcase 1:
+\t\tfmt.Println("Senin")
+\tcase 2:
+\t\tfmt.Println("Selasa")
+\tcase 3:
+\t\tfmt.Println("Rabu")
+\tdefault:
+\t\tfmt.Println("Lainnya")
+\t}
+}`,
+    cases: [["1","Senin"],["2","Selasa"],["3","Rabu"],["7","Lainnya"]] },
+  { name: "Switch dengan fallthrough", code:
+`package main
+
+import "fmt"
+
+func main() {
+\tvar x int
+
+\tfmt.Scan(&x)
+
+\tswitch x {
+\tcase 1:
+\t\tfmt.Print("A")
+\t\tfallthrough
+\tcase 2:
+\t\tfmt.Print("B")
+\t\tfallthrough
+\tcase 3:
+\t\tfmt.Print("C")
+\tdefault:
+\t\tfmt.Print("D")
+\t}
+}`,
+    cases: [["1","ABC"],["2","BC"],["3","C"],["9","D"]] },
+  { name: "Operasi string", code:
+`package main
+
+import "fmt"
+import "strings"
+
+func main() {
+\tvar s string
+
+\tfmt.Scan(&s)
+
+\tfmt.Println(strings.ToUpper(s))
+\tfmt.Println(strings.ToLower(s))
+\tfmt.Println(strings.Contains(strings.ToLower(s), "go"))
+\tfmt.Println(strings.Index(strings.ToLower(s), "go"))
+}`,
+    cases: [["GoLang","GOLANG\ngolang\ntrue\n0"],["BelajarGo","BELAJARGO\nbelajargo\ntrue\n7"]] },
+  { name: "Deret dengan for", code:
+`package main
+
+import "fmt"
+
+func main() {
+\tvar n, i, total int
+
+\tfmt.Scan(&n)
+
+\ttotal = 0
+\tfor i := 1; i <= n; i++ {
+\t\ttotal += i
+\t}
+
+\tfmt.Println(total)
+}`,
+    cases: [["5","15"],["10","55"]] },
 ];
 
 function Editor({ value, onChange, label }) {
@@ -380,7 +696,7 @@ function Editor({ value, onChange, label }) {
   );
 }
 
-function Tester({ title, presets, runner, start, hint }) {
+function Tester({ title, presets, runner, start, hint, dropdown }) {
   const [pi, setPi] = useState(start);
   const [code, setCode] = useState(presets[start].code);
   const [cases, setCases] = useState(presets[start].cases.map(([i, e]) => ({ i, e })));
@@ -396,11 +712,14 @@ function Tester({ title, presets, runner, start, hint }) {
   const passed = results.filter((r) => r.ok).length;
   const shown = results.find((r) => r.vars);
   const shownIndex = shown ? results.indexOf(shown) : -1;
+  const picker = dropdown
+    ? h("div", { className: "row" }, h("select", { "aria-label": "Pilih " + title, value: pi, onChange: (e) => pick(Number(e.target.value)) }, presets.map((p, n) => h("option", { key: p.name, value: n }, p.name))))
+    : h("div", { className: "row" }, presets.map((p, n) => h("button", { key: p.name, className: n === pi ? "on" : "", onClick: () => pick(n) }, p.name)));
 
   return h("div", { className: "grid" },
     h("section", { className: "panel" },
       h("h2", null, title),
-      h("div", { className: "row" }, presets.map((p, n) => h("button", { key: p.name, className: n === pi ? "on" : "", onClick: () => pick(n) }, p.name))),
+      picker,
       h(Editor, { value: code, onChange: (e) => setCode(e.target.value), label: "Editor " + title }),
     ),
     h("section", { className: "panel" },
@@ -432,7 +751,7 @@ function Tester({ title, presets, runner, start, hint }) {
 }
 
 
-const TABS = ["1. Cek pseudocode", "2. Cek Golang"];
+const TABS = ["1. Cek Pseudocode", "2. Cek Golang", "3. Contoh Pseudocode", "4. Contoh Golang"];
 
 function rich(text) {
   return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).filter(Boolean).map((t, n) => {
@@ -454,9 +773,13 @@ function App() {
     h("div", { className: "tabs", role: "tablist", "aria-label": "Jenis kode" }, TABS.map((t, n) =>
       h("button", { key: n, role: "tab", id: "tab-" + n, "aria-selected": tab === n, "aria-controls": "panel-" + n, className: tab === n ? "on" : "", onClick: () => setTab(n) }, t))),
     h("div", { role: "tabpanel", id: "panel-0", "aria-labelledby": "tab-0", hidden: tab !== 0 },
-      h(Tester, { title: "Pseudocode", presets: PRESETS, runner: run, start: 1 })),
+      h(Tester, { title: "Pseudocode", presets: PRESETS, runner: run, start: 0 })),
     h("div", { role: "tabpanel", id: "panel-1", "aria-labelledby": "tab-1", hidden: tab !== 1 },
-      h(Tester, { title: "Kode Go", presets: GO_PRESETS, runner: runGo, start: 1 }))
+      h(Tester, { title: "Kode Go", presets: GO_PRESETS, runner: runGo, start: 0 })),
+    h("div", { role: "tabpanel", id: "panel-2", "aria-labelledby": "tab-2", hidden: tab !== 2 },
+      h(Tester, { title: "Contoh Pseudocode", presets: PSEUDO_EXAMPLES, runner: run, start: 0, dropdown: true })),
+    h("div", { role: "tabpanel", id: "panel-3", "aria-labelledby": "tab-3", hidden: tab !== 3 },
+      h(Tester, { title: "Contoh Golang", presets: GO_EXAMPLES, runner: runGo, start: 0, dropdown: true }))
   );
 }
 ReactDOM.createRoot(document.getElementById("root")).render(h(App));
