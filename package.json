@@ -4,5 +4,11 @@
   "type": "module",
   "dependencies": {
     "@netlify/blobs": "^8.1.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.168.0"
+  },
+  "allowScripts": {
+    "workerd@1.20261123.1": true
   }
 }

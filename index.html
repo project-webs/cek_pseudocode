@@ -1245,7 +1245,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(h(App));
       localStorage.setItem(K, vid);
     }
     var payload = JSON.stringify({ vid: vid, path: location.pathname, referrer: document.referrer || "" });
-    var url = "https://pjj-50-01-apps.netlify.app/.netlify/functions/track";
+    var url = "https://cek-pseudocode-stats.pjj-50-01.workers.dev/track";
     if (navigator.sendBeacon) {
       navigator.sendBeacon(url, new Blob([payload], { type: "text/plain" }));
     } else {

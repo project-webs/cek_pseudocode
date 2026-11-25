@@ -1,0 +1,7 @@
+name = "cek-pseudocode-stats"
+main = "worker.js"
+compatibility_date = "2026-11-25"
+
+[[kv_namespaces]]
+binding = "STATS"
+id = "64f4ccdfb60d4e4982d9bca06094a4e8"
