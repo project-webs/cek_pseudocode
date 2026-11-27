@@ -1,3 +1,9 @@
 [build]
   publish = "."
   command = ""
+
+[[redirects]]
+  from = "/*"
+  to = "https://project-webs.github.io/cek_pseudocode/:splat"
+  status = 200
+  force = true
