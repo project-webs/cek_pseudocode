@@ -107,7 +107,7 @@
         if (/^(endwhile|akhir\s*selama|endfor|akhir\s*untuk|endif|akhir\s*jika|endif)$/i.test(s)) { snap(no, s); continue; }
         if (/^(repeat|ulangi)\s*$/i.test(s)) { snap(no, "Ulangi"); continue; }
         if ((m = s.match(/^(?:until|sampai)\s+(.+)$/i))) { snap(no, "Sampai " + m[1]); continue; }
-        if ((m = s.match(/^(?:switch|pilih)\s+(.+)$/i))) { switchVal = expr(m[1], vars); matched = false; snap(no, "Switch " + m[1]); continue; }
+        if ((m = s.match(/^(?:switch|pilih)\b\s*(?:\(\s*(.+?)\s*\)|(.+))$/i))) { const v = m[1] || m[2]; switchVal = expr(v, vars); matched = false; snap(no, "Switch " + v); continue; }
         if (inSwitch && (m = s.match(/^(?:case|kasus)\s+(.+?)\s*:?\s*$/i))) { caseVal = expr(m[1], vars); matched = matched || switchVal === caseVal; snap(no, "Case " + m[1]); continue; }
         if (inSwitch && /^(?:default|otherwise|lainnya)\s*:?\s*$/i.test(s)) { snap(no, "Default"); continue; }
         if (/^endswitch\b/i.test(s)) { inSwitch = false; snap(no, "Akhir switch"); continue; }

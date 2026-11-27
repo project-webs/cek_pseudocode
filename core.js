@@ -398,8 +398,8 @@ function compilePseudoBlock(lines, opts) {
       inSwitch = false; sawCase = false;
       ctx.js.push("}"); continue;
     }
-    if ((m = s.match(/^(?:switch|pilih)\s+(.+)$/i))) {
-      ctx.js.push("switch (" + expr(unwrap(m[1]), ctx) + ") {");
+    if ((m = s.match(/^(?:switch|pilih)\b\s*(?:\(\s*(.+?)\s*\)|(.+))$/i))) {
+      ctx.js.push("switch (" + expr(unwrap(m[1] || m[2]), ctx) + ") {");
       inSwitch = true; sawCase = false; continue;
     }
     if (inSwitch && (m = s.match(/^(?:case|kasus)\s+(.+?)\s*:?\s*$/i))) {
